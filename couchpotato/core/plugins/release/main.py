@@ -389,8 +389,8 @@ class Release(Plugin):
                 log.info('Ignored: %s', rel['name'])
                 continue
 
-            if rel['score'] <= 0:
-                log.info('Ignored, score "%s" to low: %s', (rel['score'], rel['name']))
+            if rel['score'] < quality_custom.get('minimum_score'):
+                log.info('Ignored, score "%s" to low, need at least "%s": %s', (rel['score'], quality_custom.get('minimum_score'), rel['name']))
                 continue
 
             if rel['size'] <= 50:
@@ -441,7 +441,6 @@ class Release(Plugin):
             for rel in search_results:
 
                 rel_identifier = md5(rel['url'])
-                found_releases.append(rel_identifier)
 
                 release = {
                     '_t': 'release',
@@ -481,6 +480,9 @@ class Release(Plugin):
 
                 # Update release in search_results
                 rel['status'] = rls.get('status')
+
+                if rel['status'] == 'available':
+                    found_releases.append(rel_identifier)
 
             return found_releases
         except:
